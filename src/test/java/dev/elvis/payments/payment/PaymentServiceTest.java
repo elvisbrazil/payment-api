@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import dev.elvis.payments.payment.AuthorizationResult.Approved;
 import dev.elvis.payments.payment.AuthorizationResult.Declined;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,7 @@ class PaymentServiceTest {
         payment.capture();
         given(payments.findWithRefundsById(payment.id())).willReturn(Optional.of(payment));
 
-        var refund = service().refund(payment.id(), Money.of("20.00", "BRL"));
+        var refund = service().refund(payment.id(), new BigDecimal("20.00"));
 
         assertThat(refund.payment()).isSameAs(payment);
         assertThat(payment.status()).isEqualTo(PaymentStatus.PARTIALLY_REFUNDED);

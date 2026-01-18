@@ -2,6 +2,7 @@ package dev.elvis.payments.payment;
 
 import dev.elvis.payments.payment.AuthorizationResult.Approved;
 import dev.elvis.payments.payment.AuthorizationResult.Declined;
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +46,9 @@ public class PaymentService {
         return payment;
     }
 
-    public Refund refund(UUID id, Money amount) {
-        return get(id).refund(amount);
+    public Refund refund(UUID id, BigDecimal amount) {
+        var payment = get(id);
+        return payment.refund(new Money(amount, payment.currency()));
     }
 
     private static String lastFour(String cardNumber) {

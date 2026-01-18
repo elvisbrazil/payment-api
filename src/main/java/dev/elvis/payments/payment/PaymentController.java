@@ -1,0 +1,52 @@
+package dev.elvis.payments.payment;
+
+import jakarta.validation.Valid;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
+@RestController
+@RequestMapping("/payments")
+class PaymentController {
+
+    private final PaymentService service;
+
+    PaymentController(PaymentService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    ResponseEntity<PaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request, UriComponentsBuilder uri) {
+        var payment = PaymentResponse.from(service.create(request.money(), request.cardNumber()));
+        var location = uri.path("/payments/{id}").buildAndExpand(payment.id()).toUri();
+        return ResponseEntity.created(location).body(payment);
+    }
+
+    @GetMapping("/{id}")
+    PaymentResponse get(@PathVariable UUID id) {
+        return PaymentResponse.from(service.get(id));
+    }
+
+    @PostMapping("/{id}/capture")
+    PaymentResponse capture(@PathVariable UUID id) {
+        return PaymentResponse.from(service.capture(id));
+    }
+
+    @PostMapping("/{id}/void")
+    PaymentResponse voidPayment(@PathVariable UUID id) {
+        return PaymentResponse.from(service.voidAuthorization(id));
+    }
+
+    @PostMapping("/{id}/refunds")
+    ResponseEntity<RefundResponse> refund(@PathVariable UUID id, @Valid @RequestBody RefundRequest request) {
+        var refund = RefundResponse.from(service.refund(id, request.amount()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(refund);
+    }
+}
