@@ -1,5 +1,7 @@
 package dev.elvis.payments.web;
 
+import dev.elvis.payments.idempotency.IdempotencyKeyReusedException;
+import dev.elvis.payments.idempotency.InvalidIdempotencyKeyException;
 import dev.elvis.payments.payment.InvalidMoneyException;
 import dev.elvis.payments.payment.InvalidPaymentTransitionException;
 import dev.elvis.payments.payment.PaymentNotFoundException;
@@ -37,6 +39,16 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     ProblemDetail handle(InvalidMoneyException e) {
         return problem(HttpStatus.BAD_REQUEST, "Invalid amount", e.getMessage());
+    }
+
+    @ExceptionHandler
+    ProblemDetail handle(IdempotencyKeyReusedException e) {
+        return problem(HttpStatus.UNPROCESSABLE_ENTITY, "Idempotency key reused", e.getMessage());
+    }
+
+    @ExceptionHandler
+    ProblemDetail handle(InvalidIdempotencyKeyException e) {
+        return problem(HttpStatus.BAD_REQUEST, "Invalid idempotency key", e.getMessage());
     }
 
     @ExceptionHandler

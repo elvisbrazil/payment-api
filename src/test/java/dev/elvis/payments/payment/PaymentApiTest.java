@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -140,6 +141,7 @@ class PaymentApiTest {
     @Test
     void rejectsInvalidPaymentRequest() throws Exception {
         mvc.perform(post("/payments")
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"amount": -5, "currency": "brl", "cardNumber": "12"}
@@ -162,6 +164,7 @@ class PaymentApiTest {
 
     private ResultActions createPayment(String amount, String currency, String cardNumber) throws Exception {
         return mvc.perform(post("/payments")
+                .header("Idempotency-Key", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {"amount": %s, "currency": "%s", "cardNumber": "%s"}
