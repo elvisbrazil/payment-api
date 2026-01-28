@@ -173,6 +173,7 @@ class PaymentApiTest {
 
     private ResultActions refund(String paymentId, String amount) throws Exception {
         return mvc.perform(post("/payments/{id}/refunds", paymentId)
+                .header("Idempotency-Key", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {"amount": %s}

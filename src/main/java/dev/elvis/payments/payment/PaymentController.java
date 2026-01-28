@@ -61,8 +61,18 @@ class PaymentController {
     }
 
     @PostMapping("/{id}/refunds")
-    ResponseEntity<RefundResponse> refund(@PathVariable UUID id, @Valid @RequestBody RefundRequest request) {
-        var refund = RefundResponse.from(service.refund(id, request.amount()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(refund);
+    ResponseEntity<RefundResponse> refund(
+            @PathVariable UUID id,
+            @RequestHeader(IdempotencyService.HEADER) String idempotencyKey,
+            @Valid @RequestBody RefundRequest request) {
+        var result = idempotency.execute(
+                idempotencyKey,
+                "refund-payment:" + id,
+                request,
+                RefundResponse.class,
+                () -> RefundResponse.from(service.refund(id, request.amount())));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(REPLAYED_HEADER, String.valueOf(result.replayed()))
+                .body(result.body());
     }
 }
