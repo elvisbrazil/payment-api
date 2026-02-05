@@ -32,6 +32,13 @@ class MoneyTest {
     }
 
     @Test
+    void normalizesScaleToCurrencyPrecision() {
+        assertThat(Money.of("10", "BRL").amount()).hasToString("10.00");
+        assertThat(Money.of("10.0000", "JPY").amount()).hasToString("10");
+        assertThat(Money.of("10", "BRL")).isEqualTo(Money.of("10.000", "BRL"));
+    }
+
+    @Test
     void addsAndSubtractsInSameCurrency() {
         var total = Money.of("10.50", "BRL").plus(Money.of("4.50", "BRL"));
 

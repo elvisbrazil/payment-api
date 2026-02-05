@@ -96,6 +96,15 @@ class PaymentTest {
     }
 
     @Test
+    void fullRefundWithDifferentScaleMarksPaymentRefunded() {
+        var payment = captured("100.00");
+
+        payment.refund(Money.of("100", "BRL"));
+
+        assertThat(payment.status()).isEqualTo(PaymentStatus.REFUNDED);
+    }
+
+    @Test
     void rejectsRefundAboveCapturedAmount() {
         var payment = captured("100.00");
 

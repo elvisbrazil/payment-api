@@ -16,6 +16,7 @@ public record Money(BigDecimal amount, Currency currency) {
             throw new InvalidMoneyException(
                     "Amount has more decimal places than " + currency.getCurrencyCode() + " allows");
         }
+        amount = amount.setScale(currency.getDefaultFractionDigits());
     }
 
     public static Money of(BigDecimal amount, String currencyCode) {
