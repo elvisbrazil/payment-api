@@ -25,7 +25,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles("test")
 class IdempotencyApiTest {
 
-    private static final String PAYMENT = """
+    private static final String PAYMENT =
+            """
             {"amount": 100.00, "currency": "BRL", "cardNumber": "4242424242424242"}
             """;
 
@@ -57,7 +58,9 @@ class IdempotencyApiTest {
         var key = newKey();
         createPayment(key, PAYMENT).andExpect(status().isCreated());
 
-        createPayment(key, """
+        createPayment(
+                        key,
+                        """
                         {"amount": 100.01, "currency": "BRL", "cardNumber": "4242424242424242"}
                         """)
                 .andExpect(status().isUnprocessableEntity())

@@ -7,9 +7,9 @@ import dev.elvis.payments.payment.AuthorizationResult.Approved;
 import dev.elvis.payments.payment.AuthorizationResult.Declined;
 import dev.elvis.payments.payment.Money;
 import java.util.UUID;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.api.Test;
 
 class FakePaymentProviderTest {
 

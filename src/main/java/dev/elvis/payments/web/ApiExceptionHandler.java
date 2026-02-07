@@ -54,7 +54,9 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     ProblemDetail handle(ObjectOptimisticLockingFailureException e) {
         return problem(
-                HttpStatus.CONFLICT, "Concurrent modification", "The payment was modified concurrently, retry the request");
+                HttpStatus.CONFLICT,
+                "Concurrent modification",
+                "The payment was modified concurrently, retry the request");
     }
 
     private static ProblemDetail problem(HttpStatus status, String title, String detail) {

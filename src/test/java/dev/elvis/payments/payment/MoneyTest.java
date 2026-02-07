@@ -55,7 +55,9 @@ class MoneyTest {
 
     @Test
     void comparesAmounts() {
-        assertThat(Money.of("10.01", "EUR").isGreaterThan(Money.of("10.00", "EUR"))).isTrue();
-        assertThat(Money.of("10.00", "EUR").isGreaterThan(Money.of("10", "EUR"))).isFalse();
+        assertThat(Money.of("10.01", "EUR").isGreaterThan(Money.of("10.00", "EUR")))
+                .isTrue();
+        assertThat(Money.of("10.00", "EUR").isGreaterThan(Money.of("10", "EUR")))
+                .isFalse();
     }
 }

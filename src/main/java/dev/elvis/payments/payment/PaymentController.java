@@ -39,7 +39,8 @@ class PaymentController {
                 request,
                 PaymentResponse.class,
                 () -> PaymentResponse.from(service.create(request.money(), request.cardNumber())));
-        var location = uri.path("/payments/{id}").buildAndExpand(result.body().id()).toUri();
+        var location =
+                uri.path("/payments/{id}").buildAndExpand(result.body().id()).toUri();
         return ResponseEntity.created(location)
                 .header(REPLAYED_HEADER, String.valueOf(result.replayed()))
                 .body(result.body());

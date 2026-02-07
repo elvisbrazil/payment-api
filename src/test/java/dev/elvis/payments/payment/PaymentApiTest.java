@@ -140,10 +140,12 @@ class PaymentApiTest {
 
     @Test
     void rejectsInvalidPaymentRequest() throws Exception {
-        mvc.perform(post("/payments")
-                        .header("Idempotency-Key", UUID.randomUUID().toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mvc.perform(
+                        post("/payments")
+                                .header("Idempotency-Key", UUID.randomUUID().toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                                 {"amount": -5, "currency": "brl", "cardNumber": "12"}
                                 """))
                 .andExpect(status().isBadRequest())
@@ -166,9 +168,11 @@ class PaymentApiTest {
         return mvc.perform(post("/payments")
                 .header("Idempotency-Key", UUID.randomUUID().toString())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(
+                        """
                         {"amount": %s, "currency": "%s", "cardNumber": "%s"}
-                        """.formatted(amount, currency, cardNumber)));
+                        """
+                                .formatted(amount, currency, cardNumber)));
     }
 
     private ResultActions refund(String paymentId, String amount) throws Exception {

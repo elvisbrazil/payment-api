@@ -119,9 +119,8 @@ class PaymentTest {
         payment.refund(Money.of("60.00", "BRL"));
 
         assertThatThrownBy(() -> payment.refund(Money.of("50.00", "BRL")))
-                .isInstanceOfSatisfying(
-                        RefundExceedsCapturedAmountException.class,
-                        e -> assertThat(e.refundable()).isEqualTo(Money.of("40.00", "BRL")));
+                .isInstanceOfSatisfying(RefundExceedsCapturedAmountException.class, e -> assertThat(e.refundable())
+                        .isEqualTo(Money.of("40.00", "BRL")));
         assertThat(payment.refundedAmount()).isEqualTo(Money.of("60.00", "BRL"));
     }
 
