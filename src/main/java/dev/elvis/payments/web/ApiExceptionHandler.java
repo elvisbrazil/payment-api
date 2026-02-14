@@ -1,5 +1,6 @@
 package dev.elvis.payments.web;
 
+import dev.elvis.payments.idempotency.IdempotencyKeyInUseException;
 import dev.elvis.payments.idempotency.IdempotencyKeyReusedException;
 import dev.elvis.payments.idempotency.InvalidIdempotencyKeyException;
 import dev.elvis.payments.payment.InvalidMoneyException;
@@ -44,6 +45,11 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     ProblemDetail handle(IdempotencyKeyReusedException e) {
         return problem(HttpStatus.UNPROCESSABLE_ENTITY, "Idempotency key reused", e.getMessage());
+    }
+
+    @ExceptionHandler
+    ProblemDetail handle(IdempotencyKeyInUseException e) {
+        return problem(HttpStatus.CONFLICT, "Idempotency key in use", e.getMessage());
     }
 
     @ExceptionHandler

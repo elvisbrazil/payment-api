@@ -5,10 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "idempotency_keys")
-class IdempotencyRecord {
+class IdempotencyRecord implements Persistable<String> {
 
     @Id
     @Column(name = "idempotency_key")
@@ -30,6 +31,16 @@ class IdempotencyRecord {
         this.requestHash = requestHash;
         this.responseBody = responseBody;
         this.createdAt = Instant.now();
+    }
+
+    @Override
+    public String getId() {
+        return key;
+    }
+
+    @Override
+    public boolean isNew() {
+        return true;
     }
 
     boolean matches(String hash) {

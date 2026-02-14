@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.function.Supplier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,11 @@ public class IdempotencyService {
         }
 
         T response = action.get();
-        records.save(new IdempotencyRecord(key, hash, write(response)));
+        try {
+            records.saveAndFlush(new IdempotencyRecord(key, hash, write(response)));
+        } catch (DataIntegrityViolationException e) {
+            throw new IdempotencyKeyInUseException(key);
+        }
         return new IdempotentResponse<>(response, false);
     }
 
