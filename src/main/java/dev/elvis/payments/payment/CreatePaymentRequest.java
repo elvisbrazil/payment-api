@@ -5,11 +5,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
+import org.hibernate.validator.constraints.LuhnCheck;
 
 public record CreatePaymentRequest(
         @NotNull @Positive BigDecimal amount,
         @NotBlank @Pattern(regexp = "[A-Z]{3}", message = "must be an ISO 4217 code") String currency,
-        @NotBlank @Pattern(regexp = "\\d{12,19}", message = "must contain 12 to 19 digits") String cardNumber) {
+        @NotBlank
+                @Pattern(regexp = "\\d{12,19}", message = "must contain 12 to 19 digits")
+                @LuhnCheck(message = "is not a valid card number")
+                String cardNumber) {
 
     Money money() {
         return Money.of(amount, currency);

@@ -1,5 +1,6 @@
 package dev.elvis.payments.payment;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -151,9 +152,16 @@ class PaymentApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.title").value("Invalid request"))
-                .andExpect(jsonPath("$.errors.amount").value("must be greater than 0"))
-                .andExpect(jsonPath("$.errors.currency").value("must be an ISO 4217 code"))
-                .andExpect(jsonPath("$.errors.cardNumber").value("must contain 12 to 19 digits"));
+                .andExpect(jsonPath("$.errors.amount[0]").value("must be greater than 0"))
+                .andExpect(jsonPath("$.errors.currency[0]").value("must be an ISO 4217 code"))
+                .andExpect(jsonPath("$.errors.cardNumber", hasItem("must contain 12 to 19 digits")));
+    }
+
+    @Test
+    void rejectsCardNumberFailingLuhnCheck() throws Exception {
+        createPayment("10.00", "BRL", "4242424242424241")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.cardNumber[0]").value("is not a valid card number"));
     }
 
     @Test

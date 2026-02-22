@@ -7,6 +7,9 @@ import dev.elvis.payments.payment.InvalidMoneyException;
 import dev.elvis.payments.payment.InvalidPaymentTransitionException;
 import dev.elvis.payments.payment.PaymentNotFoundException;
 import dev.elvis.payments.payment.RefundExceedsCapturedAmountException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.http.HttpHeaders;
@@ -83,11 +86,12 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 "The payment was modified concurrently, retry the request");
     }
 
-    private static Map<String, String> fieldErrors(MethodArgumentNotValidException e) {
-        var errors = new TreeMap<String, String>();
+    private static Map<String, List<String>> fieldErrors(MethodArgumentNotValidException e) {
+        var errors = new TreeMap<String, List<String>>();
         for (FieldError error : e.getFieldErrors()) {
-            errors.putIfAbsent(error.getField(), error.getDefaultMessage());
+            errors.computeIfAbsent(error.getField(), field -> new ArrayList<>()).add(error.getDefaultMessage());
         }
+        errors.values().forEach(Collections::sort);
         return errors;
     }
 
