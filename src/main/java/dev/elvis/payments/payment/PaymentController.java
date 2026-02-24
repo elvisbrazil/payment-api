@@ -18,8 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/payments")
 class PaymentController {
 
-    private static final String REPLAYED_HEADER = "Idempotent-Replayed";
-
     private final PaymentService service;
     private final IdempotencyService idempotency;
 
@@ -42,7 +40,7 @@ class PaymentController {
         var location =
                 uri.path("/payments/{id}").buildAndExpand(result.body().id()).toUri();
         return ResponseEntity.created(location)
-                .header(REPLAYED_HEADER, String.valueOf(result.replayed()))
+                .header(IdempotencyService.REPLAYED_HEADER, String.valueOf(result.replayed()))
                 .body(result.body());
     }
 
@@ -73,7 +71,7 @@ class PaymentController {
                 RefundResponse.class,
                 () -> RefundResponse.from(service.refund(id, request.amount())));
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(REPLAYED_HEADER, String.valueOf(result.replayed()))
+                .header(IdempotencyService.REPLAYED_HEADER, String.valueOf(result.replayed()))
                 .body(result.body());
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class IdempotencyService {
 
     public static final String HEADER = "Idempotency-Key";
+    public static final String REPLAYED_HEADER = "Idempotent-Replayed";
 
     private static final int MAX_KEY_LENGTH = 255;
 
