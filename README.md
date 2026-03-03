@@ -18,12 +18,9 @@ Tests run against H2 in PostgreSQL mode, with the same Flyway migrations.
 
 ## Payment lifecycle
 
-```
-PENDING -> AUTHORIZED -> CAPTURED -> PARTIALLY_REFUNDED -> REFUNDED
-   |           |             \______________________________/
-   v           v
-DECLINED     VOIDED
-```
+- `PENDING -> AUTHORIZED | DECLINED` (decided by the provider when the payment is created)
+- `AUTHORIZED -> CAPTURED | VOIDED`
+- `CAPTURED | PARTIALLY_REFUNDED -> PARTIALLY_REFUNDED | REFUNDED`
 
 Any other transition returns `409 Conflict`. Errors are returned as `application/problem+json`.
 
@@ -34,6 +31,34 @@ Any other transition returns `409 Conflict`. Errors are returned as `application
 | POST   | `/payments/{id}/capture` | Captures the full authorized amount   |
 | POST   | `/payments/{id}/void`    | Only for authorized payments          |
 | POST   | `/payments/{id}/refunds` | Requires `Idempotency-Key`            |
+
+## Usage
+
+```sh
+curl -i localhost:8080/payments \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: 5b1f0c9e-order-1042' \
+  -d '{"amount": 120.00, "currency": "BRL", "cardNumber": "4242424242424242"}'
+
+curl -X POST localhost:8080/payments/{id}/capture
+
+curl localhost:8080/payments/{id}/refunds \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: 5b1f0c9e-order-1042-refund-1' \
+  -d '{"amount": 20.00}'
+```
+
+The fake provider declines a few test cards and any amount above 10000.00:
+
+| Card number        | Result               |
+|--------------------|----------------------|
+| `4000000000000002` | `card_declined`      |
+| `4000000000009995` | `insufficient_funds` |
+| `4000000000000069` | `expired_card`       |
+| any other valid    | approved             |
+
+A declined payment is still created (`201`, status `DECLINED`, with `declineReason`), so the attempt is kept and the
+idempotent replay returns the same outcome.
 
 ## Design notes
 
